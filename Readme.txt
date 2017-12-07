@@ -9,4 +9,9 @@ L4 までの実装で、ユーザー認証とメッセージの受信と削除�
 POP3 ハンドリングを単純化するために、L3 ハンドリング用の TCP Client Class に分かれています
 
 使い方は、test main を見てください
+(超手抜きご容赦)
+
+◆ Web Page
+	PowerShell で POP3
+	http://www.vwnet.jp/Windows/PowerShell/2017120701/POP3PowerShellClass.htm
 
