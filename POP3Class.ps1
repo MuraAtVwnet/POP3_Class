@@ -204,18 +204,18 @@ class TCPClient {
 				# 受信バッファ解析
 				for($this.CV_ReceiveBufferIndex = 0; $this.CV_ReceiveBufferIndex -lt $Read; ){
 					# バイナリハンドリングするときの処理
-					# if( $this.CV_ReceiveBuffer[$this.CV_ReceiveBufferIndex] -eq $this.CC_IAC ){
-					#	# IAC 受信処理
-					#	$this.ReceiveIAC()
-					#}
-					#else{
+					if( $false ){
+						# バイナリ処理
+						# 必要な条件を設定してここに処理を書く
+					}
+					else{
 						# テキスト受信
 						for( $i = 0; $this.CV_ReceiveBufferIndex -lt $Read; $i++ ){
 							$TextBuffer[$i] = $this.CV_ReceiveBuffer[$this.CV_ReceiveBufferIndex++]
 						}
 						$RaceveTempText = ($Encoding.GetString( $TextBuffer, 0, $i ))
 						$TextMeaage += $RaceveTempText
-					#}
+					}
 				}
 
 				# 受信テキストがプロンプトだったら抜ける
