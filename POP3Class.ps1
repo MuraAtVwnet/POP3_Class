@@ -274,6 +274,15 @@ class TCPClient {
 }
 
 ##############################################
+# Mail Table Class
+#  (メールリスト取得の戻り値として使用)
+##############################################
+class MailTable {
+	[int]$Index
+	[string]$MessageSize
+}
+
+##############################################
 # POP3 Client Class
 ##############################################
 class POP3 : TCPClient {
@@ -381,14 +390,14 @@ class POP3 : TCPClient {
 	##########################################################################
 	# メールリスト取得
 	##########################################################################
-	[string[]] GetMessageList(){
+	[MailTable[]] GetMessageList(){
 		# コマンド送信
 		([TCPClient]$this).Send( "LIST", $true )
 
 		# 受信
 		[string[]]$ReceiveData = ([TCPClient]$this).Receive(".")
 
-		[String[]]$ReturnDatas = @()
+		[MailTable[]]$ReturnDatas = @()
 
 		$Max = $ReceiveData.Count
 
@@ -396,10 +405,12 @@ class POP3 : TCPClient {
 			$LineData = $ReceiveData[$i]
 			$ListDatas = $LineData.Split(" ")
 			if( $ListDatas.Count -eq 2 ){
-				$ReturnDatas += $ListDatas[0]
+				$Table = New-Object MailTable
+				$Table.Index = [int]$ListDatas[0]
+				$Table.MessageSize = $ListDatas[1]
+				$ReturnDatas += $Table
 			}
 		}
-
 		return $ReturnDatas
 	}
 
@@ -407,9 +418,9 @@ class POP3 : TCPClient {
 	##########################################################################
 	# メール受信
 	##########################################################################
-	[string[]] ReceiveMessage([string] $MessageNummber){
+	[string[]] ReceiveMessage([int] $MessageIndex){
 		# コマンド送信
-		$Sendcommand = "RETR $MessageNummber"
+		$Sendcommand = "RETR $MessageIndex"
 		([TCPClient]$this).Send( $Sendcommand, $true )
 
 		# 受信
@@ -427,9 +438,9 @@ class POP3 : TCPClient {
 	##########################################################################
 	# メール削除
 	##########################################################################
-	[void] RemoveMessage([string] $MessageNummber){
+	[void] RemoveMessage([int] $MessageIndex){
 		# コマンド送信
-		$Sendcommand = "DELE $MessageNummber"
+		$Sendcommand = "DELE $MessageIndex"
 		([TCPClient]$this).Send( $Sendcommand, $true )
 
 		# 受信
@@ -451,18 +462,20 @@ $POP3 = New-Object POP3
 
 $POP3.Login( "MailServer", 110, "ID", "Password" )
 
-$MessageNummbers = $POP3.GetMessageList()
+$MessageIndexs = $POP3.GetMessageList()
 
-$Message = $POP3.ReceiveMessage("1")
+$Index = $MessageIndexs[0].Index
+$Message = $POP3.ReceiveMessage($Index)
 
 $Message
 
-$POP3.RemoveMessage("1")
+$POP3.RemoveMessage($Index)
 
-#foreach( $MessageNummber in $MessageNummbers ){
-#	 $Message = $POP3.ReceiveMessage($MessageNummber)
+#foreach( $MessageIndex in $MessageIndexs ){
+#	$Index = $MessageIndex.Index
+#	$Message = $POP3.ReceiveMessage($Index)
 #
-#	 $Message
+#	$Message
 #}
 
 $POP3.Logoff()
